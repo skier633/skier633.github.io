@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Kevin Deng, Electrical & Computer Engineering student at the University of Washington. Projects in speech models and audio hardware.">
+<title>Kevin Deng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow centered reading column; the schematic breaks out wider. Only the schematic and the spec block get a frame. */
+:root {
+  --bg: #f6f7f5;
+  --fg: #161a17;
+  --muted: #5f6862;
+  --line: #dadfdb;
+  --line-strong: #b9c1bb;
+  --accent: #1e7b45;
+  --font-body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --col: 42rem;
+  --wide: 60rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111412; --fg: #e4e8e5; --muted: #98a29b; --line: #272d29; --line-strong: #3a423d; --accent: #7cc495;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111412; --fg: #e4e8e5; --muted: #98a29b; --line: #272d29; --line-strong: #3a423d; --accent: #7cc495;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  padding-inline: 1.25rem;
+  padding-block: 4.5rem 3rem;
+  -webkit-font-smoothing: antialiased;
+}
+main { max-width: var(--col); margin-inline: auto; display: grid; gap: 5.5rem; }
+h1, h2, h3 { text-wrap: balance; margin: 0; font-weight: 500; }
+p { margin: 0; }
+a { color: inherit; text-decoration-color: var(--line-strong); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { text-decoration-color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+.label {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.mono { font-family: var(--font-mono); font-size: .85em; }
+
+/* Header */
+header { display: grid; gap: 1.1rem; }
+header h1 { font-size: 2rem; letter-spacing: -.015em; line-height: 1.2; }
+header .intro { color: var(--muted); max-width: 34rem; font-size: 1.06rem; }
+.contact { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1.4rem; font-size: .95rem; }
+.email { display: inline-flex; align-items: center; gap: .6rem; }
+.email span { user-select: all; }
+.copy {
+  font: inherit; font-family: var(--font-mono); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--muted); background: none; border: 1px solid var(--line-strong); border-radius: 3px;
+  padding: .1rem .45rem; cursor: pointer;
+}
+.copy:hover { color: var(--fg); border-color: var(--muted); }
+
+/* Index */
+.index { display: grid; gap: .9rem; }
+.index ol { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); }
+.index li { border-bottom: 1px solid var(--line); }
+.index a {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .15rem 1.5rem;
+  padding-block: 1rem; text-decoration: none;
+}
+.index a:hover .t { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
+.index .t { font-weight: 500; }
+.index .d { color: var(--muted); font-size: .94rem; grid-column: 1; }
+.index .y { font-family: var(--font-mono); font-size: .8rem; color: var(--muted); grid-row: 1; grid-column: 2; align-self: baseline; font-variant-numeric: tabular-nums; }
+
+/* Project */
+article { display: grid; gap: 1.5rem; scroll-margin-top: 2rem; }
+.meta { display: flex; flex-wrap: wrap; gap: .3rem 1rem; align-items: center; }
+.state { display: inline-flex; align-items: center; gap: .45rem; color: var(--accent); }
+.state::before { content: ""; width: .45rem; height: .45rem; border-radius: 50%; border: 1.5px solid var(--accent); }
+article h2 { font-size: 1.6rem; letter-spacing: -.01em; line-height: 1.25; }
+.lede { font-size: 1.08rem; }
+.tags { display: flex; flex-wrap: wrap; gap: .4rem; list-style: none; margin: 0; padding: 0; }
+.tags li { font-family: var(--font-mono); font-size: .75rem; color: var(--muted); border: 1px solid var(--line); border-radius: 3px; padding: .1rem .5rem; }
+
+.block { display: grid; gap: .9rem; padding-top: 1.5rem; }
+.block h3 { font-size: 1.05rem; font-weight: 600; }
+.block p + p { margin-top: -.1rem; }
+.muted { color: var(--muted); }
+
+/* Signal chain: drawn like a wire with junction dots */
+.chain { list-style: none; margin: .6rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.chain li { position: relative; padding: 1.35rem .9rem 0 0; min-width: 0; display: grid; gap: .15rem; align-content: start; }
+.chain li::before { content: ""; position: absolute; top: .34rem; left: 0; right: 0; height: 1.5px; background: var(--accent); }
+.chain li:last-child::before { display: none; }
+.chain li::after { content: ""; position: absolute; top: .1rem; left: 0; width: .55rem; height: .55rem; border-radius: 50%; background: var(--accent); }
+.chain b { font-weight: 500; font-size: .95rem; line-height: 1.35; }
+.chain span { font-family: var(--font-mono); font-size: .72rem; color: var(--muted); line-height: 1.45; }
+
+/* Schematic */
+figure.wide {
+  margin: .5rem 0 0;
+  width: min(var(--wide), calc(100vw - 2.5rem));
+  margin-left: 50%;
+  transform: translateX(-50%);
+  display: grid; gap: .6rem;
+}
+figure.wide > a { display: block; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; background: #f5f4ef; }
+figure.wide img { display: block; width: 100%; height: auto; }
+figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .3rem 1rem; font-size: .85rem; color: var(--muted); }
+
+/* Bug story */
+.story { display: grid; gap: 0; margin: .3rem 0 0; border-top: 1px solid var(--line); }
+.story > div { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: .3rem 1.25rem; padding-block: .9rem; border-bottom: 1px solid var(--line); }
+.story dt { padding-top: .2rem; }
+.story dd { margin: 0; }
+
+/* Changes */
+.changes { display: grid; margin-top: .3rem; border-top: 1px solid var(--line); }
+.changes .row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: .3rem 1.5rem; padding-block: .85rem; border-bottom: 1px solid var(--line); }
+.changes .head { padding-block: .55rem; }
+.changes .ref { display: block; font-family: var(--font-mono); font-size: .72rem; color: var(--muted); margin-top: .15rem; }
+.changes .why { color: var(--muted); }
+
+/* Spec block, styled after a schematic title block */
+.titleblock {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px; background: var(--line-strong); border: 1px solid var(--line-strong); margin-top: .3rem;
+}
+.titleblock > div { background: var(--bg); padding: .6rem .8rem .65rem; display: grid; gap: .1rem; min-width: 0; }
+.titleblock .v { font-family: var(--font-mono); font-size: .85rem; font-variant-numeric: tabular-nums; }
+
+/* Status */
+.status { list-style: none; padding: 0; margin: .3rem 0 0; display: grid; gap: .8rem; }
+.status li { display: grid; grid-template-columns: 1.1rem minmax(0, 1fr) auto; gap: 0 .75rem; align-items: baseline; }
+.status li::before { content: ""; width: .55rem; height: .55rem; border-radius: 50%; border: 1.5px solid var(--line-strong); transform: translateY(.05rem); }
+.status li.done::before { background: var(--accent); border-color: var(--accent); }
+.status li.next::before { border-color: var(--accent); }
+.status .s { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.status li.done .s, .status li.next .s { color: var(--accent); }
+
+.chain.c4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.links { display: flex; flex-wrap: wrap; gap: .4rem 1.4rem; font-size: .95rem; }
+
+/* Headline finding: two numbers side by side */
+.finding { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; padding-block: 1.1rem; border-block: 1px solid var(--line); margin-top: .3rem; }
+.finding div { display: grid; gap: .2rem; min-width: 0; }
+.finding .n { font-size: 1.9rem; font-weight: 500; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.finding .n small { font-size: .5em; color: var(--muted); font-weight: 400; letter-spacing: 0; }
+.finding p { color: var(--muted); font-size: .92rem; }
+
+/* Text pipeline example */
+.sample { display: grid; gap: .9rem; border: 1px solid var(--line); border-radius: 4px; padding: 1rem 1.1rem; margin-top: .3rem; overflow-x: auto; }
+.sample div { display: grid; gap: .2rem; min-width: 0; }
+.sample code { font-family: var(--font-mono), "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif; font-size: .88rem; overflow-wrap: anywhere; }
+.sample .out code { color: var(--accent); }
+
+ul.simple { margin: 0; padding-left: 1.1rem; display: grid; gap: .5rem; }
+ul.simple li::marker { color: var(--muted); }
+
+/* Smaller projects */
+.smaller { display: grid; gap: 1.25rem; scroll-margin-top: 2rem; }
+.smaller > h2 { font-size: 1.6rem; letter-spacing: -.01em; line-height: 1.25; }
+.smaller ul.items { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.smaller .item { display: grid; gap: .55rem; padding-block: 1.4rem; border-bottom: 1px solid var(--line); }
+.smaller .item h3 { font-size: 1.1rem; font-weight: 500; }
+.smaller .item p { max-width: 38rem; }
+.result { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; list-style: none; margin: .15rem 0 0; padding: 0; }
+.result li { font-family: var(--font-mono); font-size: .8rem; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+.credit { font-size: .9rem; color: var(--muted); padding-top: 1.5rem; border-top: 1px solid var(--line); }
+
+footer { max-width: var(--col); margin: 5rem auto 0; padding-top: 1.25rem; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem 1rem; }
+
+@media (max-width: 40rem) {
+  body { padding-block: 3rem 2.5rem; }
+  main { gap: 4rem; }
+  header h1 { font-size: 1.75rem; }
+  .chain { grid-template-columns: minmax(0, 1fr); }
+  .chain li { padding: 0 0 1.1rem 1.5rem; }
+  .chain li::before { top: .4rem; bottom: 0; left: .24rem; right: auto; width: 1.5px; height: auto; }
+  .chain li::after { top: .4rem; }
+  .chain.c4 { grid-template-columns: minmax(0, 1fr); }
+  .finding { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  .story > div { grid-template-columns: minmax(0, 1fr); }
+  .changes .row { grid-template-columns: minmax(0, 1fr); }
+  .changes .head { display: none; }
+  .titleblock { grid-template-columns: minmax(0, 1fr); }
+  .status li { grid-template-columns: 1.1rem minmax(0, 1fr); }
+  .status .s { grid-column: 2; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+<style>body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Kevin Deng</h1>
+    <p class="intro">First-year Electrical &amp; Computer Engineering student at the University of Washington in Seattle. Most of my work is about sound, from the circuits that make it to the models that generate it. I usually start from an open-source project, find where it falls short, and extend it.</p>
+    <div class="contact">
+      <a href="https://github.com/skier633" target="_blank" rel="noopener">GitHub ↗</a>
+      <span class="email"><span id="email">k128deng@gmail.com</span><button class="copy" id="copy-email" type="button">Copy</button></span>
+    </div>
+  </header>
+
+  <nav class="index" aria-label="Projects">
+    <p class="label">Projects</p>
+    <ol>
+      <li><a href="#tts"><span class="t">Taiwanese Mandarin Text-to-Speech</span><span class="d">Adapted an open-source speech model to read Traditional Chinese with a Taiwanese accent. SeaSalt.ai.</span><span class="y">2025–26</span></a></li>
+      <li><a href="#speaker"><span class="t">Ultrasonic Directional Speaker</span><span class="d">A speaker that sends sound in a narrow beam. Redesigned preamp and driver in KiCad.</span><span class="y">2026</span></a></li>
+      <li><a href="#smaller"><span class="t">Smaller projects</span><span class="d">A 500 MHz bandpass filter and a nanoparticle research proposal.</span></a></li>
+    </ol>
+  </nav>
+
+  <article id="tts">
+    <div class="meta">
+      <span class="label">2025–2026</span>
+      <span class="label">SeaSalt.ai · Research internship</span>
+    </div>
+    <h2>Taiwanese Mandarin Text-to-Speech</h2>
+    <p class="lede">IndexTTS2 is an open-source model that turns text into natural-sounding speech. It only read Simplified Chinese and English, and it had no Taiwanese accent. I adapted it to read Traditional Chinese and to speak the way people in Taiwan do.</p>
+    <ul class="tags"><li>Python</li><li>PyTorch</li><li>LoRA</li><li>Docker</li></ul>
+    <div class="links">
+      <a href="https://github.com/skier633/KTTS" target="_blank" rel="noopener">Code on GitHub ↗</a>
+    </div>
+
+    <section class="block">
+      <h3>The problem</h3>
+      <p>Text in Taiwan is written in Traditional Chinese. Over a third of the characters in the Taiwanese training data (1,180 of 3,315) weren't in the model's vocabulary. It also had no way to choose between the different readings of a character, and it came with no code for training it further.</p>
+      <p>I also measured how often the accent shows up in 33.6 hours of Taiwanese recordings. Only 2.7% of characters are pronounced differently from standard Mandarin, but 48.6% of sentences with Chinese text contain at least one of them.</p>
+    </section>
+
+    <section class="block">
+      <h3>What I built</h3>
+      <div class="changes">
+        <div class="row"><span>A text pipeline that converts Traditional Chinese to Simplified, then picks the right reading for each character from the word around it<span class="ref">OpenCC, jieba, pypinyin</span></span><span class="why">Doubled the characters the model can handle, from about 11K to 22K.</span></div>
+        <div class="row"><span>A training pipeline, adapted from a community example since IndexTTS2 didn't ship with one<span class="ref">PyTorch</span></span><span class="why">Tested first on 3.5 hours of generated speech, then on 33.6 hours of real recordings.</span></div>
+        <div class="row"><span>A speech-to-speech prototype that listens, replies and talks back, running entirely on a local network<span class="ref">Whisper, Ollama, Docker, Flask</span></span><span class="why">A full voice conversation where no audio leaves the network.</span></div>
+      </div>
+      <div class="sample" aria-label="Text pipeline example">
+        <div><span class="label">Input, Traditional Chinese</span><code lang="zh-Hant">台灣模式非供應鏈外移是擴大在美產業實力。</code></div>
+        <div><span class="label">After conversion to Simplified</span><code lang="zh-Hans">台湾模式非供应链外移是扩大在美产业实力。</code></div>
+        <div class="out"><span class="label">After choosing readings</span><code>TAI2 湾MO2 SHI4 FEI1 GONG1 YING4 链外YI2 SHI4 扩DA4 在美产业实力。</code></div>
+      </div>
+      <p class="muted">The order matters. The word splitter was trained on Simplified text, so converting first gives cleaner word boundaries, and the right reading depends on the word.</p>
+    </section>
+
+    <section class="block">
+      <h3>Teaching it the accent</h3>
+      <p>Getting the accent was the easy part. Keeping each speaker's own voice at the same time was the hard part.</p>
+      <dl class="story">
+        <div><dt class="label">Fine-tune</dt><dd>Trained the model on only the Taiwanese recordings. The accent sounded natural, but every voice came out female, even when the reference voice was male.</dd></div>
+        <div><dt class="label">LoRA</dt><dd>Trained small add-on layers instead of the whole model. The accent was strong, but voices still drifted toward the training speakers. Switching LoRA on for different parts of the model showed that, for one voice, the accent lives mostly in the lower layers.</dd></div>
+        <div><dt class="label">LoRA + GRL</dt><dd>Added a second network that penalizes the model for learning who is speaking, so it only learns the accent. The mechanism worked, but training didn't settle and the output lost the accent. Next idea: train in phases so the new network starts from a stable point.</dd></div>
+      </dl>
+    </section>
+
+    <section class="block">
+      <h3>Speech-to-speech prototype</h3>
+      <ol class="chain c4" aria-label="Speech-to-speech pipeline">
+        <li><b>Listen</b><span>Whisper turns speech into text</span></li>
+        <li><b>Reply</b><span>Ollama writes an answer</span></li>
+        <li><b>Speak</b><span>IndexTTS2 reads it aloud</span></li>
+        <li><b>Serve</b><span>Docker + Flask on the local network</span></li>
+      </ol>
+      <p>It works end to end, but it takes about 2.2 seconds to generate each second of speech, and the GPU only reached 25% use even after speed-ups like half-precision and caching. Getting it under real time is the main open problem.</p>
+    </section>
+  </article>
+
+  <article id="speaker">
+    <div class="meta">
+      <span class="label">2026</span>
+      <span class="label state">In progress</span>
+    </div>
+    <h2>Ultrasonic Directional Speaker</h2>
+    <p class="lede">A speaker that sends sound in a narrow beam, so only the person standing in front of it can hear it. I started from an open-source design, went through it part by part, and redrew the preamp and driver in KiCad to fix the problems I found.</p>
+    <ul class="tags"><li>KiCad</li><li>STM32</li><li>Analog circuits</li></ul>
+
+    <section class="block">
+      <h3>How it works</h3>
+      <p>The speaker plays audio on top of a 40&nbsp;kHz ultrasonic signal, which is too high for people to hear. Ultrasound travels in a tight beam, and as it moves through the air, the air itself turns it back into sound you can hear. So the audio is only audible inside the beam.</p>
+      <ol class="chain" aria-label="Signal path">
+        <li><b>Audio in</b><span>3.5 mm stereo jack</span></li>
+        <li><b>Preamp</b><span>MCP6002, centered at 1.65 V</span></li>
+        <li><b>Microcontroller</b><span>STM32 reads audio, outputs 40 kHz PWM</span></li>
+        <li><b>Driver</b><span>MIC4427, 18 V</span></li>
+        <li><b>Transducers</b><span>40 kHz array</span></li>
+      </ol>
+    </section>
+
+    <figure class="wide">
+      <a href="schematic.png" target="_blank" rel="noopener"><img src="schematic.png" width="2060" height="1430" alt="KiCad schematic, revision 2.0: audio jack and MCP6002 preamp, mid-rail bias network, filtered analog supply, STM32 Blue Pill, and MIC4427 MOSFET driver feeding the transducer array, with revision notes."></a>
+      <figcaption><span>Rev 2.0 schematic, KiCad</span><a href="schematic.png" target="_blank" rel="noopener">Open full size ↗</a></figcaption>
+    </figure>
+
+    <section class="block">
+      <h3>The bug that started the redesign</h3>
+      <p>While tracing the original circuit, I found that the audio reaching the STM32 could dip below 0&nbsp;V.</p>
+      <dl class="story">
+        <div><dt class="label">Problem</dt><dd>The preamp output went through a capacitor before the STM32's analog input. A capacitor blocks steady voltage, so after it the audio swings around 0&nbsp;V and half of every wave goes negative.</dd></div>
+        <div><dt class="label">Why it matters</dt><dd>The STM32 can only measure 0 to 3.3&nbsp;V. Anything below 0&nbsp;V gets cut off, which distorts the sound, and pulling a pin below ground can stress it.</dd></div>
+        <div><dt class="label">Fix</dt><dd>I removed that capacitor and held the op-amp at 1.65&nbsp;V, half of 3.3&nbsp;V, so the audio swings around the middle of the range the STM32 can read. I also replaced the LM358 running on 5&nbsp;V with an MCP6002 running on 3.3&nbsp;V. Its output can't go above 3.3&nbsp;V, so it can't overshoot the input either.</dd></div>
+      </dl>
+    </section>
+
+    <section class="block">
+      <h3>Other changes from the original</h3>
+      <ul class="simple">
+        <li>Wired the stereo jack properly and mixed left and right, so a stereo plug no longer shorts the right channel.</li>
+        <li>Made the gain adjustable (about 0.5× to 5.5×) instead of a fixed 100×, so different audio sources don't clip.</li>
+        <li>Added a filter at the STM32's input that cuts sound above about 16&nbsp;kHz before it gets sampled.</li>
+        <li>Gave the preamp its own filtered supply to keep digital noise and hum out of the signal.</li>
+        <li>Added supply capacitors at the driver, plus pull-down resistors so the transducers stay quiet while the STM32 boots.</li>
+      </ul>
+    </section>
+
+    <section class="block">
+      <h3>Specs</h3>
+      <div class="titleblock">
+        <div><span class="label">Carrier</span><span class="v">40 kHz</span></div>
+        <div><span class="label">Microcontroller</span><span class="v">STM32F103 (Blue Pill)</span></div>
+        <div><span class="label">Preamp</span><span class="v">MCP6002, gain 0.5–5.5×</span></div>
+        <div><span class="label">Audio band</span><span class="v">≈160 Hz – 16 kHz</span></div>
+        <div><span class="label">Driver</span><span class="v">MIC4427, 18 V bridge</span></div>
+        <div><span class="label">Firmware pins</span><span class="v">PA7 in · PA8 / PB13 out</span></div>
+        <div><span class="label">Revision</span><span class="v">2.0</span></div>
+        <div><span class="label">Date</span><span class="v">2026-09-29</span></div>
+      </div>
+    </section>
+
+    <p class="credit">Based on <a href="https://github.com/gururise/directional_speaker" target="_blank" rel="noopener">Ultrasonic Lazer</a> by Gene Ruebsamen (2020). The original and this revision are both licensed CC BY-NC-SA 4.0.</p>
+  </article>
+
+  <section class="smaller" id="smaller">
+    <h2>Smaller projects</h2>
+    <ul class="items">
+      <li class="item">
+        <span class="label">2026 · SARP Avionics interview project</span>
+        <h3>500 MHz Bandpass Filter</h3>
+        <p>The task was to let a 500 MHz signal from an antenna through and block everything else. I chained three inductor–capacitor circuits that each resonate at 500 MHz, linked by small capacitors, and simulated it in LTspice with ideal parts. The linking capacitors shift each circuit's tuning, so I trimmed each circuit's own capacitor to bring all three back to exactly 500 MHz. I also built a two-stage version to compare. At 450 MHz, less than 0.4% of the signal's voltage gets through.</p>
+        <ul class="result"><li>Passes 490–513 MHz</li><li>−49 dB at 450 MHz</li><li>−38 dB at 550 MHz</li></ul>
+      </li>
+      <li class="item">
+        <span class="label">2025 · Yale University, Zhou Lab</span>
+        <h3>ROS/GSH-Responsive Nanoparticles</h3>
+        <p>An independent research proposal for a nanoparticle that holds on to its cargo until it reaches cells with high levels of reactive oxygen species (ROS) or glutathione (GSH), two chemical signals that run high in many diseased cells. Those molecules cut a self-immolative linker, which then falls apart on its own and releases the payload. In the lab itself, I worked with the team testing proteins as carriers for delivering Cas9 RNP into neurons.</p>
+      </li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <span class="label">Kevin Deng · Seattle, WA</span>
+  <span class="label">Updated September 2026</span>
+</footer>
+
+<script>
+(function () {
+  var btn = document.getElementById('copy-email');
+  var email = document.getElementById('email');
+  function selectText() {
+    try {
+      var r = document.createRange(); r.selectNodeContents(email);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    } catch (e) {}
+  }
+  function done(msg) {
+    btn.textContent = msg;
+    setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+  }
+  btn.addEventListener('click', function () {
+    var text = email.textContent.trim();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done('Copied'); }, function () { selectText(); done('Selected'); });
+    } else { selectText(); done('Selected'); }
+  });
+})();
+</script>
+</body>
+</html>
